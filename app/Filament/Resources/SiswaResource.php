@@ -13,10 +13,13 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use DesignTheBox\BarcodeField\Forms\Components\BarcodeInput;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 
 class SiswaResource extends Resource
 {
@@ -48,9 +51,11 @@ class SiswaResource extends Resource
                     'Perempuan' => 'PEREMPUAN'
                 ]),
                 TextInput::make('no_hp'),
-                BarcodeInput::make('unique_code')
-                ->icon('heroicon-o-arrow-right') // Specify your Heroicon name here
-                ->required(),
+                TextInput::make('unique_code')
+                ->disabledOn('edit')
+                ->readOnlyOn('edit')
+                ->required()
+                ,
             ]);
     }
 
@@ -59,17 +64,47 @@ class SiswaResource extends Resource
         return $table
             ->columns([
                 //
+                TextColumn::make("nis")->label("NIS"),
+                TextColumn::make("nama_siswa")->label("Nama Siswa"),
+                TextColumn::make("kelas_id")->formatStateUsing(function(string $state) {
+                    $kelas = Kelas::find($state);
+                    return $kelas->label();
+                })->label("Kelas"),
             ])
             ->filters([
-                //
+
+                // filter by name
+                Filter::make("nama")->label("Cari nama siswa")
+                ->form([
+                    TextInput::make("nama")
+                    ->label("Nama Siswa")
+                ])
+                ->query(function(Builder $query, array $data): Builder {
+                    return $query
+                    ->when(
+                        $data["nama"],
+                        fn(Builder $query, $nama): Builder => $query->where('nama_siswa', 'like', '%'.$nama.'%')
+                    );
+                }),
+
+                // by kelas id
+                SelectFilter::make("kelas_id")->label("Kelas")
+                ->relationship('kelas', 'id')
+                ->preload()
+                ->searchable()
+                ->getOptionLabelFromRecordUsing(fn(Model $record) => "{$record->label()}")
+                // ->getOptionLabelUsing(function($kelas_id) {
+                //     $kelas = Kelas::find($kelas_id);
+                //     return $kelas->label();
+                // })
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ]);
     }
 
