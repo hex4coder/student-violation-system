@@ -144,11 +144,12 @@ class HistoryPelanggaranResource extends Resource
 
                     // approv action
                     Action::make('accept')->label("Setujui Aduan Ini")
-                    ->authorize(function() {
-                        return Gate::allows('accept', HistoryPelanggaran::class);
+                    ->authorize(function($record) {
+                        return $record->status == 0 && Gate::allows('accept', HistoryPelanggaran::class);
                     })
                     ->color('success')
                     ->icon('heroicon-o-check')
+                    ->requiresConfirmation()
                     ->action(function($record) {
                         // update status to 1
                         $record->status = 1;
@@ -162,8 +163,8 @@ class HistoryPelanggaranResource extends Resource
     
                     // reject action
                     Action::make('reject')->label('Tolak Aduan Ini')
-                    ->authorize(function() {
-                        return Gate::allows('reject', HistoryPelanggaran::class);
+                    ->authorize(function($record) {
+                        return $record->status == 0 && Gate::allows('reject', HistoryPelanggaran::class);
                     })
                     ->color('danger')
                     ->icon('heroicon-o-no-symbol')
