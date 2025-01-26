@@ -20,7 +20,11 @@ class KelasResource extends Resource
 {
     protected static ?string $model = Kelas::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-home';
+    protected static ?string $navigationGroup = 'Data';
+    protected static ?string $navigationLabel = 'Kelas';
+    protected static ?string $slug = 'kelas';
+
 
     public static function form(Form $form): Form
     {
@@ -34,7 +38,7 @@ class KelasResource extends Resource
                 ]),
 
                 Select::make('jurusan_id')
-                ->relationship('jurusan', 'kode'),
+                ->relationship('jurusan', 'kode', ignoreRecord:true),
 
                 Select::make('index')->options([
                     null => 'Tidak ada',
@@ -50,10 +54,9 @@ class KelasResource extends Resource
         return $table
             ->columns([
                 //
+                TextColumn::make('id')->label('Label Kelas')->badge()->color('success')->formatStateUsing(fn($record) => $record->label()),
                 TextColumn::make('tingkat')
-                ->formatStateUsing(fn(string $state) => strtoupper($state))
-                ->description(fn($record) => "Keterangan : " . $record->label())
-                ,
+                ->formatStateUsing(fn(string $state) => strtoupper($state)),
 
                 TextColumn::make('jurusan.kode'),
                 TextColumn::make('index'),

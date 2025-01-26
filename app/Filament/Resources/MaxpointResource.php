@@ -19,7 +19,10 @@ class MaxpointResource extends Resource
 {
     protected static ?string $model = Maxpoint::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
+    protected static ?string $navigationGroup = 'Pelanggaran dan Sanksi';
+    protected static ?string $navigationLabel = 'Max. Point';
+    protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
     {
@@ -37,7 +40,7 @@ class MaxpointResource extends Resource
             ->columns([
                 //
                 TextColumn::make('keterangan'),
-                TextColumn::make('maxpoin')->label('Maximum Poin Pelanggaran')
+                TextColumn::make('maxpoin')->label('Maximum Poin Pelanggaran')->badge()->color('danger')
             ])
             ->filters([
                 //

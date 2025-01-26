@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('fullname');
             $table->string('code_id')->unique();
             $table->string('status');
+            $table->string('keterangan')->nullable();
             $table->timestamps();
         });
     }

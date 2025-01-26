@@ -21,6 +21,8 @@ class SanksiResource extends Resource
     protected static ?string $model = Sanksi::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-bug-ant';
+    protected static ?string $navigationGroup = 'Pelanggaran dan Sanksi';
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {
@@ -41,7 +43,7 @@ class SanksiResource extends Resource
                 //
                 TextColumn::make('nomor'),
                 TextColumn::make('pelanggaran')->wrap(),
-                TextColumn::make('skor'),
+                TextColumn::make('skor')->badge()->color('danger'),
                 TextColumn::make('sanksi')->wrap(),
             ])
             ->filters([

@@ -6,6 +6,7 @@ use App\Filament\Resources\RespondentResource\Pages;
 use App\Filament\Resources\RespondentResource\RelationManagers;
 use App\Models\Respondent;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -21,6 +22,9 @@ class RespondentResource extends Resource
     protected static ?string $model = Respondent::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
+    protected static ?string $navigationGroup = 'Pengguna Aplikasi';
+    protected static ?int $navigationSort = 1;
+
 
     public static function form(Form $form): Form
     {
@@ -28,14 +32,22 @@ class RespondentResource extends Resource
             ->schema([
                 //
                 TextInput::make('username')
-                    ->unique('respondents', 'username')
+                    ->unique('respondents', 'username', ignoreRecord:true)
                     ->required(),
                 TextInput::make('password')
                     ->disabledOn('edit')
                     ->required(),
                 TextInput::make('fullname')->required(),
                 TextInput::make('code_id')->label("Code")->required(),
-                TextInput::make('status')->required(),
+                Select::make('status')->options([
+                    'guru_bk' => 'Guru BK',
+                    'guru_mapel' => 'Guru Mapel',
+                    'staf' => 'Staf',
+                    'siswa' => 'Siswa',
+                    'pimpinan' => 'Kepala Sekolah',
+                    'wakasek' => 'Wakil Kepala Sekolah',
+                ]),
+                TextInput::make('keterangan'),
 
             ]);
     }
@@ -47,8 +59,9 @@ class RespondentResource extends Resource
                 //
                 TextColumn::make('username'),
                 TextColumn::make('fullname'),
-                TextColumn::make('code_id'),
-                TextColumn::make('status'),
+                TextColumn::make('code_id')->label('Kode Intel'),
+                TextColumn::make('status')->badge()->color('success')->formatStateUsing(fn($state) => strtoupper(str_replace("_"," ",$state))),
+                TextColumn::make('keterangan'),
             ])
             ->filters([
                 //

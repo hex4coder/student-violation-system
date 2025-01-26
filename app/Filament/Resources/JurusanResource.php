@@ -19,7 +19,11 @@ class JurusanResource extends Resource
 {
     protected static ?string $model = Jurusan::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-tag';
+    protected static ?string $navigationGroup = 'Data';
+    protected static ?string $navigationLabel = 'Jurusan';
+    protected static ?string $slug = 'jurusan';
+
 
     public static function form(Form $form): Form
     {
@@ -37,7 +41,7 @@ class JurusanResource extends Resource
             ->columns([
                 //
                 TextColumn::make('id'),
-                TextColumn::make('kode'),
+                TextColumn::make('kode')->label('Kode Jurusan')->badge()->color('success'),
                 TextColumn::make('nama_jurusan')
             ])
             ->filters([

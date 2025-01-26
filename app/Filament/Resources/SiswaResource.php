@@ -25,7 +25,11 @@ class SiswaResource extends Resource
 {
     protected static ?string $model = Siswa::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-user';
+    protected static ?string $navigationGroup = 'Data';
+    protected static ?string $navigationLabel = 'Siswa';
+    protected static ?int $navigationSort = 3;
+    protected static ?string $slug = 'siswa';
 
 
     //TODO: Kelas ID bukan id_kelas tapi kelas_id
@@ -39,7 +43,7 @@ class SiswaResource extends Resource
                 TextInput::make('nama_siswa'),
                 Select::make('kelas_id')
                 ->label('Kelas')
-                ->relationship('kelas', 'id')
+                ->relationship('kelas', 'id', ignoreRecord:true)
                 ->searchable()
                 ->preload()
                 ->getOptionLabelFromRecordUsing(fn(Model $record) => "{$record->label()}")
@@ -51,7 +55,7 @@ class SiswaResource extends Resource
                     'Perempuan' => 'PEREMPUAN'
                 ]),
                 TextInput::make('no_hp'),
-                TextInput::make('unique_code')
+                TextInput::make('unique_code')->unique('siswas', 'unique_code', ignoreRecord:true)
                 ->disabledOn('edit')
                 ->readOnlyOn('edit')
                 ->required()
