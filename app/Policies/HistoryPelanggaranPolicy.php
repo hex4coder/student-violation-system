@@ -42,6 +42,16 @@ class HistoryPelanggaranPolicy
         return $user->can('update_history::pelanggaran');
     }
 
+    public function accept(User $user): bool
+    {
+        return $user->can('update_history::pelanggaran');
+    }
+
+    public function reject(User $user): bool
+    {
+        return $user->can('update_history::pelanggaran');
+    }
+
     /**
      * Determine whether the user can delete the model.
      */

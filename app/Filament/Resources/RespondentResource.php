@@ -23,6 +23,7 @@ class RespondentResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
     protected static ?string $navigationGroup = 'Pengguna Aplikasi';
+    protected static ?string $navigationLabel = 'Respondent Mobile';
     protected static ?int $navigationSort = 1;
 
 

@@ -10,14 +10,19 @@ use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Gate;
 
 class HistoryPelanggaranResource extends Resource
 {
@@ -131,7 +136,54 @@ class HistoryPelanggaranResource extends Resource
                     ])
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+
+                ActionGroup::make([
+                    // edit action
+                    Tables\Actions\EditAction::make(),
+
+
+                    // approv action
+                    Action::make('accept')->label("Setujui Aduan Ini")
+                    ->authorize(function() {
+                        return Gate::allows('accept', HistoryPelanggaran::class);
+                    })
+                    ->color('success')
+                    ->icon('heroicon-o-check')
+                    ->action(function($record) {
+                        // update status to 1
+                        $record->status = 1;
+                        $record->save();
+
+                        Notification::make()
+                        ->title('Aduan disetujui')
+                        ->success()
+                        ->send();
+                    }),
+    
+                    // reject action
+                    Action::make('reject')->label('Tolak Aduan Ini')
+                    ->authorize(function() {
+                        return Gate::allows('reject', HistoryPelanggaran::class);
+                    })
+                    ->color('danger')
+                    ->icon('heroicon-o-no-symbol')
+                    ->form([
+                        Textarea::make('alasan_penolakan')->required(),
+                    ])
+                    ->requiresConfirmation()
+                    ->action(function($record, $data){
+                        $record->alasan_penolakan = $data['alasan_penolakan'];
+                        $record->status = 2;
+                        $record->save();
+
+
+                        Notification::make()
+                        ->title('Aduan ditolak dengan alasan ' . $data['alasan_penolakan'])
+                        ->success()
+                        ->send();
+                    })
+                ]),
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
