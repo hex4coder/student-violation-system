@@ -20,6 +20,11 @@ class Kelas extends Model
         return $this->hasMany(Siswa::class);
     }
 
+    
+    public function history_pelanggaran() {
+        return $this->hasMany(HistoryPelanggaran::class);
+    }
+
     public function label() {
         // X TJKT 1
         return trim(strtoupper($this->tingkat) . ' ' . $this->jurusan->kode . ' ' . $this->index);

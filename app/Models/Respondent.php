@@ -10,4 +10,9 @@ class Respondent extends Model
     protected $guarded = [
         'id'
     ];
+
+
+    public function history_pelanggaran() {
+        return $this->hasMany(HistoryPelanggaran::class);
+    }
 }
