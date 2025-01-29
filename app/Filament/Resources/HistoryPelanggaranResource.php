@@ -81,7 +81,9 @@ class HistoryPelanggaranResource extends Resource
                         0 => 'Baru',
                         1 => 'Disetujui',
                         2 => 'Ditolak',
-                    ])->disabledOn('create'),
+                    ])
+                    ->dehydrated()
+                    ->disabledOn('create'),
 
                 FileUpload::make('bukti')
                     ->image()
