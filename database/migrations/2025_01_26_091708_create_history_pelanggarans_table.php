@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('history_pelanggarans', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('kelas_id')->constrained('kelas','id')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('kelas_id')->constrained('kelas', 'id')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('siswa_id')->constrained('siswas', 'id')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('sanksi_id')->constrained('sanksis', 'id')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('respondent_id')->constrained('respondents', 'id')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->unsignedTinyInteger('status'); // 0 = baru, 1 = disetujui, 2 = direject
+            $table->unsignedTinyInteger('status')->default(0); // 0 = baru, 1 = disetujui, 2 = direject
             $table->string('bukti'); // foto 
             $table->string('alasan_penolakan')->nullable();
             $table->timestamps();

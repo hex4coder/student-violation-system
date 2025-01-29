@@ -33,6 +33,13 @@ class HistoryPelanggaranResource extends Resource
     protected static ?string $navigationGroup = 'Laporan';
     protected static ?int $navigationSort = 10;
 
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $data['status'] = 0;
+        return $data;
+    }
+
     public static function form(Form $form): Form
     {
         return $form
