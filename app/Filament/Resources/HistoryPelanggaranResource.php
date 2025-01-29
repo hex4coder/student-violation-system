@@ -22,6 +22,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 class HistoryPelanggaranResource extends Resource
@@ -68,11 +69,12 @@ class HistoryPelanggaranResource extends Resource
                     ->required(),
 
                 Select::make('status')
+                    ->default(0)
                     ->options([
                         0 => 'Baru',
                         1 => 'Disetujui',
                         2 => 'Ditolak',
-                    ])->required(),
+                    ])->hiddenOn('create'),
 
                 FileUpload::make('bukti')
                     ->image()
@@ -81,7 +83,7 @@ class HistoryPelanggaranResource extends Resource
                     ->required(),
 
 
-                Textarea::make('alasan_penolakan')->label('Alasan Penolakan'),
+                Textarea::make('alasan_penolakan')->label('Alasan Penolakan')->hiddenOn('create'),
             ]);
     }
 
@@ -100,7 +102,7 @@ class HistoryPelanggaranResource extends Resource
                 TextColumn::make('sanksi.skor')->label('Poin Pelanggaran')->badge()->color('danger'),
                 TextColumn::make('status')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         '0' => 'gray',
                         // 'reviewing' => 'warning',
                         '1' => 'success',
@@ -139,50 +141,65 @@ class HistoryPelanggaranResource extends Resource
 
                 ActionGroup::make([
                     // edit action
-                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\EditAction::make()->authorize(function () {
+                        if (Auth::user()->roles[0]->name == 'super_admin') {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    }),
 
 
                     // approv action
                     Action::make('accept')->label("Setujui Aduan Ini")
-                    ->authorize(function($record) {
-                        return $record->status == 0 && Gate::allows('accept', HistoryPelanggaran::class);
-                    })
-                    ->color('success')
-                    ->icon('heroicon-o-check')
-                    ->requiresConfirmation()
-                    ->action(function($record) {
-                        // update status to 1
-                        $record->status = 1;
-                        $record->save();
+                        ->authorize(function ($record) {
 
-                        Notification::make()
-                        ->title('Aduan disetujui')
-                        ->success()
-                        ->send();
-                    }),
-    
+                            if (Auth::user()->roles[0]->name == 'super_admin') {
+                                return true;
+                            } else {
+                                return strtolower(Auth::user()->roles[0]->name) == 'guru bk' && $record->status == 0 && Gate::allows('accept', HistoryPelanggaran::class);
+                            }
+                        })
+                        ->color('success')
+                        ->icon('heroicon-o-check')
+                        ->requiresConfirmation()
+                        ->action(function ($record) {
+                            // update status to 1
+                            $record->status = 1;
+                            $record->save();
+
+                            Notification::make()
+                                ->title('Aduan disetujui')
+                                ->success()
+                                ->send();
+                        }),
+
                     // reject action
                     Action::make('reject')->label('Tolak Aduan Ini')
-                    ->authorize(function($record) {
-                        return $record->status == 0 && Gate::allows('reject', HistoryPelanggaran::class);
-                    })
-                    ->color('danger')
-                    ->icon('heroicon-o-no-symbol')
-                    ->form([
-                        Textarea::make('alasan_penolakan')->required(),
-                    ])
-                    ->requiresConfirmation()
-                    ->action(function($record, $data){
-                        $record->alasan_penolakan = $data['alasan_penolakan'];
-                        $record->status = 2;
-                        $record->save();
+                        ->authorize(function ($record) {
+                            if (Auth::user()->roles[0]->name == 'super_admin') {
+                                return true;
+                            } else {
+                                return strtolower(Auth::user()->roles[0]->name) == 'guru bk' && $record->status == 0 && Gate::allows('accept', HistoryPelanggaran::class);
+                            }
+                        })
+                        ->color('danger')
+                        ->icon('heroicon-o-no-symbol')
+                        ->form([
+                            Textarea::make('alasan_penolakan')->required(),
+                        ])
+                        ->requiresConfirmation()
+                        ->action(function ($record, $data) {
+                            $record->alasan_penolakan = $data['alasan_penolakan'];
+                            $record->status = 2;
+                            $record->save();
 
 
-                        Notification::make()
-                        ->title('Aduan ditolak dengan alasan ' . $data['alasan_penolakan'])
-                        ->success()
-                        ->send();
-                    })
+                            Notification::make()
+                                ->title('Aduan ditolak dengan alasan ' . $data['alasan_penolakan'])
+                                ->success()
+                                ->send();
+                        })
                 ]),
 
             ])
