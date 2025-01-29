@@ -34,7 +34,7 @@ class HistoryPelanggaranResource extends Resource
     protected static ?int $navigationSort = 10;
 
 
-    protected function mutateFormDataBeforeSave(array $data): array
+    protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['status'] = 0;
         return $data;
@@ -81,14 +81,13 @@ class HistoryPelanggaranResource extends Resource
                         0 => 'Baru',
                         1 => 'Disetujui',
                         2 => 'Ditolak',
-                    ])->hiddenOn('create'),
+                    ])->disabledOn('create'),
 
                 FileUpload::make('bukti')
                     ->image()
                     ->optimize('jpg')
                     ->label("Bukti / Dokumentasi")
                     ->required(),
-
 
                 Textarea::make('alasan_penolakan')->label('Alasan Penolakan')->hiddenOn('create'),
             ]);
